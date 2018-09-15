@@ -15,16 +15,31 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 
-package store
+package server_test
 
-// Storer is the interface Raft-backed key-value stores must implement.
-type Storer interface {
-	// Get returns the value for the given key.
-	Get(key string) (string, error)
+import (
+	"testing"
 
-	// Set sets the value for the given key, via distributed consensus.
-	Set(key, value string) error
+	"github.com/goombaio/raft/example/server"
+	"github.com/goombaio/raft/example/store"
+)
 
-	// Delete removes the given key, via distributed consensus.
-	Delete(key string) error
+type TestServer struct {
+	*server.Service
+}
+
+// Test_NewServer tests that a server can perform all basic operations.
+func Test_NewServer(t *testing.T) {
+	simpleStore := store.NewSimpleStore()
+
+	address := ":8000"
+
+	service := &TestServer{server.NewService(address, simpleStore)}
+	if service == nil {
+		t.Fatalf("Can't the HTTP service")
+	}
+
+	if err := service.Start(); err != nil {
+		t.Fatalf("failed to start HTTP service: %s", err)
+	}
 }

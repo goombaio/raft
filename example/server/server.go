@@ -32,14 +32,14 @@ import (
 type Service struct {
 	address  string
 	listener net.Listener
-	store    store.StoreInterface
+	store    store.Storer
 }
 
 // NewService ...
-func NewService(address string, storeProvider store.StoreInterface) *Service {
+func NewService(address string, store store.Storer) *Service {
 	service := &Service{
 		address: address,
-		store:   storeProvider,
+		store:   store,
 	}
 
 	return service
@@ -72,8 +72,6 @@ func (s *Service) Start() error {
 // Close ...
 func (s *Service) Close() {
 	s.listener.Close()
-
-	return
 }
 
 // ServeHTTP ...
@@ -82,41 +80,8 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// - Use a Mux & Router
 	if strings.HasPrefix(r.URL.Path, "/key") {
 		s.handleKeyRequest(w, r)
-	} else if r.URL.Path == "/join" {
-		s.handleJoin(w, r)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
-	}
-}
-
-// handleJoin ...
-func (s *Service) handleJoin(w http.ResponseWriter, r *http.Request) {
-	m := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&m); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if len(m) != 2 {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	remoteAddr, ok := m["addr"]
-	if !ok {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	nodeID, ok := m["id"]
-	if !ok {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if err := s.store.Join(nodeID, remoteAddr); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
 	}
 }
 
@@ -139,6 +104,7 @@ func (s *Service) handleKeyRequest(w http.ResponseWriter, r *http.Request) {
 		if k == "" {
 			w.WriteHeader(http.StatusBadRequest)
 		}
+
 		v, err := s.store.Get(k)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -151,7 +117,11 @@ func (s *Service) handleKeyRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		io.WriteString(w, string(b))
+		_, err = io.WriteString(w, string(b))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 	case "POST":
 		// Read the value from the POST body.
@@ -173,17 +143,21 @@ func (s *Service) handleKeyRequest(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+
 		if err := s.store.Delete(k); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		s.store.Delete(k)
+
+		err := s.store.Delete(k)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-
-	return
 }
 
 // Addr returns the address on which the Service is listening

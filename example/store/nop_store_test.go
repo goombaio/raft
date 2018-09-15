@@ -15,16 +15,45 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 
-package store
+package store_test
 
-// Storer is the interface Raft-backed key-value stores must implement.
-type Storer interface {
-	// Get returns the value for the given key.
-	Get(key string) (string, error)
+import (
+	"testing"
 
-	// Set sets the value for the given key, via distributed consensus.
-	Set(key, value string) error
+	"github.com/goombaio/raft/example/store"
+)
 
-	// Delete removes the given key, via distributed consensus.
-	Delete(key string) error
+func TestNopStore(t *testing.T) {
+	_ = store.NewNopStore()
+}
+
+func TestNopStore_Set(t *testing.T) {
+	nopStore := store.NewNopStore()
+
+	err := nopStore.Set("key", "value")
+	if err != nil {
+		t.Fatalf("Expected no error but got %s", err)
+	}
+}
+
+func TestNopStore_Get(t *testing.T) {
+	nopStore := store.NewNopStore()
+
+	value, err := nopStore.Get("key")
+	if err != nil {
+		t.Fatalf("Expected no error but got %s", err)
+	}
+
+	if value != "" {
+		t.Fatalf("Expected value %q but got %q", "", value)
+	}
+}
+
+func TestNopStore_delete(t *testing.T) {
+	nopStore := store.NewNopStore()
+
+	err := nopStore.Delete("key")
+	if err != nil {
+		t.Fatalf("Expected no error but got %s", err)
+	}
 }

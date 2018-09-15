@@ -5,7 +5,7 @@
 // work for additional information regarding copyright ownership.  The ASF
 // licenses this file to you under the Apache License, Version 2.0 (the
 // "License"); you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
+// You may obtain a copy of the Licenses at
 //
 // http://www.apache.org/licenses/LICENSE-2.0
 //
@@ -17,14 +17,31 @@
 
 package store
 
-// Storer is the interface Raft-backed key-value stores must implement.
-type Storer interface {
-	// Get returns the value for the given key.
-	Get(key string) (string, error)
+// NopStore is an store.Store that does nothing
+type NopStore struct {
+	entries map[string]string
+}
 
-	// Set sets the value for the given key, via distributed consensus.
-	Set(key, value string) error
+// NewNopStore ...
+func NewNopStore() *NopStore {
+	store := &NopStore{
+		entries: make(map[string]string, 0),
+	}
 
-	// Delete removes the given key, via distributed consensus.
-	Delete(key string) error
+	return store
+}
+
+// Set ...
+func (t *NopStore) Set(key string, value string) error {
+	return nil
+}
+
+// Get ...
+func (t *NopStore) Get(key string) (string, error) {
+	return "", nil
+}
+
+// Delete ...
+func (t *NopStore) Delete(key string) error {
+	return nil
 }

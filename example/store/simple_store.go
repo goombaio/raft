@@ -17,14 +17,57 @@
 
 package store
 
-// Storer is the interface Raft-backed key-value stores must implement.
-type Storer interface {
-	// Get returns the value for the given key.
-	Get(key string) (string, error)
+import (
+	"errors"
+	"sync"
+)
 
-	// Set sets the value for the given key, via distributed consensus.
-	Set(key, value string) error
+// SimpleStore ...
+type SimpleStore struct {
+	mu      sync.Mutex
+	entries map[string]string
+}
 
-	// Delete removes the given key, via distributed consensus.
-	Delete(key string) error
+// NewSimpleStore ...
+func NewSimpleStore() *SimpleStore {
+	store := &SimpleStore{
+		entries: make(map[string]string, 0),
+	}
+
+	return store
+}
+
+// Get ...
+func (s *SimpleStore) Get(key string) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if value, ok := s.entries[key]; ok {
+		return value, nil
+	}
+
+	return "", errors.New("Key %s not found")
+}
+
+// Set ...
+func (s *SimpleStore) Set(key, value string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.entries[key] = value
+
+	return nil
+}
+
+// Delete ...
+func (s *SimpleStore) Delete(key string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, ok := s.entries[key]; ok {
+		delete(s.entries, key)
+		return nil
+	}
+
+	return errors.New("Key %s not found")
 }
