@@ -22,6 +22,11 @@ import (
 	"sync"
 )
 
+var (
+	// ErrorKeyNotFound ...
+	ErrorKeyNotFound = errors.New("key not found")
+)
+
 // SimpleStore ...
 type SimpleStore struct {
 	mu      sync.Mutex
@@ -46,7 +51,7 @@ func (s *SimpleStore) Get(key string) (string, error) {
 		return value, nil
 	}
 
-	return "", errors.New("Key %s not found")
+	return "", ErrorKeyNotFound
 }
 
 // Set ...
@@ -69,5 +74,5 @@ func (s *SimpleStore) Delete(key string) error {
 		return nil
 	}
 
-	return errors.New("Key %s not found")
+	return ErrorKeyNotFound
 }

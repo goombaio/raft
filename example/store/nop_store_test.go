@@ -49,7 +49,7 @@ func TestNopStore_Get(t *testing.T) {
 	}
 }
 
-func TestNopStore_delete(t *testing.T) {
+func TestNopStore_Delete(t *testing.T) {
 	nopStore := store.NewNopStore()
 
 	err := nopStore.Delete("key")
