@@ -15,4 +15,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 
+// Package raft implements RAFT consensus algorithm.
+//
+// This package is still in R&D, so there is no code yet available.
 package raft

@@ -2,6 +2,9 @@
 
 Raft consensus protocol implementation in golang.
 
+**DISCLAIMER:**
+This package is still in R&D, so there is no code yet available.
+
 ## Badges
 
 [![License][License-Image]][License-URL]
@@ -61,7 +64,7 @@ limitations under the License.
 [Coverage-URL]: https://codecov.io/gh/goombaio/raft
 [GoReportCard-Image]: https://goreportcard.com/badge/github.com/goombaio/raft
 [GoReportCard-URL]: https://goreportcard.com/report/github.com/goombaio/raft
-[CII-Image]: https://bestpractices.coreinfrastructure.org/projects/2184/badge
-[CII-URL]: https://bestpractices.coreinfrastructure.org/projects/2184
+[CII-Image]: https://bestpractices.coreinfrastructure.org/projects/2217/badge
+[CII-URL]: https://bestpractices.coreinfrastructure.org/projects/2217
 [GoDoc-Image]: https://godoc.org/github.com/goombaio/raft?status.svg
 [GoDoc-URL]: http://godoc.org/github.com/goombaio/raft
